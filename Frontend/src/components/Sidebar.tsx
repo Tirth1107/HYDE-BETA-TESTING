@@ -49,10 +49,7 @@ const Sidebar: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-black text-white p-6 space-y-10">
       <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => navigate('/')}>
-        <div className="w-11 h-11 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-          <span className="text-2xl font-black italic text-black">H</span>
-        </div>
-        <h1 className="text-2xl font-black tracking-tighter italic">HYDE</h1>
+        <h1 className="text-2xl font-black tracking-tighter italic">HYDE MUSIC</h1>
       </div>
 
       <nav className="space-y-6">
