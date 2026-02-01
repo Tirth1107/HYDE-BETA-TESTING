@@ -664,9 +664,48 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     handleIntelligentAutoQueue();
   }, [state.currentSong, state.queue, skipCount, repeatCount]);
 
+  // --- MOBILE BACKGROUND PLAYBACK HACK ---
+  // A silent audio track is played alongside the YouTube video.
+  // This "tricks" iOS/Android into thinking a real music track is playing,
+  // preventing them from suspending the YouTube IFrame when backgrounded.
+  const silentAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // 1-second silent MP3
+    const SILENT_MP3 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAASAAAAAA//OEMAAAAAAA';
+
+    if (!silentAudioRef.current) {
+      const audio = new Audio(SILENT_MP3);
+      audio.loop = true;
+      audio.volume = 0; // Silent
+      audio.preload = 'auto';
+      silentAudioRef.current = audio;
+    }
+  }, []);
+
+  // Sync Silent Audio with Player State
+  useEffect(() => {
+    const audio = silentAudioRef.current;
+    if (!audio) return;
+
+    if (state.isPlaying) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          // Auto-play policy might block this until user interaction.
+          // Usually handled by the main play button click, but good to catch.
+          console.warn("Silent audio play blocked:", error);
+        });
+      }
+    } else {
+      audio.pause();
+    }
+  }, [state.isPlaying]);
+
   // YouTube API
   useEffect(() => {
     if (!document.getElementById('youtube-player-hidden')) {
+      const playerDiv = document.createElement('div');
       playerDiv.id = 'youtube-player-hidden';
       // Use opacity 0 instead of visibility: hidden to potentially avoid some background execution restrictions
       playerDiv.style.cssText = 'position: absolute; top: -9999px; left: -9999px; opacity: 0; pointer-events: none; z-index: -1;';
