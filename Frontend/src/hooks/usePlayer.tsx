@@ -85,17 +85,14 @@ class MusicRecommendationEngine {
 
   public recordListeningEvent(event: ListeningEvent): void {
     this.listeningHistory.push(event);
-
     if (this.listeningHistory.length > this.HISTORY_WINDOW) {
       this.listeningHistory.shift();
     }
-
     this.updateTasteProfile(event);
   }
 
   private updateTasteProfile(event: ListeningEvent): void {
     const { artist, genre, action, listenDuration, songDuration } = event;
-
     const completionRatio = listenDuration && songDuration
       ? listenDuration / songDuration
       : 1;
@@ -197,7 +194,6 @@ class MusicRecommendationEngine {
 
     const genreScore = this.userProfile.genrePreferences.get(candidate.genre) || 0;
     const maxScore = Math.max(...Array.from(this.userProfile.genrePreferences.values()), 1);
-
     return (genreScore / maxScore) * 100;
   }
 
@@ -246,7 +242,6 @@ class MusicRecommendationEngine {
 
   private calculatePopularitySignal(candidate: Song): number {
     const views = candidate.views || 0;
-
     if (views > 10000000) return 20;
     if (views > 1000000) return 15;
     if (views > 100000) return 10;
@@ -392,122 +387,94 @@ const DesktopFullScreenPlayer = ({
 }: any) => {
   return (
     <motion.div
-      initial={{ y: '100%' }}
-      animate={{ y: 0 }}
-      exit={{ y: '100%' }}
-      transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-      className="hidden md:flex fixed inset-0 z-[200] flex-col overflow-hidden bg-zinc-950"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-gradient-to-b from-zinc-900 via-black to-black z-[100] flex flex-col items-center justify-center p-8"
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-        <img
-          src={currentTrack.coverUrl || currentTrack.image}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-30 blur-[100px] scale-110"
-        />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
-      </div>
+      <button onClick={onClose} className="absolute top-6 right-6 p-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+        <ChevronDown className="w-6 h-6" />
+      </button>
 
-      <div className="w-full px-8 py-6 flex justify-between items-center z-10">
-        <div className="flex items-center space-x-3 bg-white/5 border border-white/5 px-4 py-1.5 rounded-full backdrop-blur-md">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-          </span>
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/80">Now Playing</span>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-full text-white backdrop-blur-md transition-all hover:scale-105 hover:rotate-90"
-        >
-          <Minimize2 className="w-5 h-5" />
-        </button>
-      </div>
-
-      <div className="flex-1 flex w-full max-w-5xl mx-auto px-8 pb-12 items-center justify-center space-x-16">
+      <div className="w-full max-w-2xl flex flex-col items-center space-y-8">
         <motion.div
-          layoutId="desktop-cover"
-          className="w-[320px] h-[320px] shadow-2xl rounded-2xl overflow-hidden flex-shrink-0 relative group border border-white/10"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="relative group"
         >
-          <img src={currentTrack.coverUrl || currentTrack.image} className="w-full h-full object-cover" alt="Cover" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-purple-500/20 blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+          <img
+            src={currentTrack.coverUrl || currentTrack.image}
+            alt={currentTrack.title}
+            className="relative w-80 h-80 rounded-3xl shadow-2xl object-cover ring-1 ring-white/10"
+          />
         </motion.div>
 
-        <div className="flex-1 flex flex-col justify-center space-y-8 max-w-xl">
-          <div className="flex justify-between items-start">
-            <div className="space-y-2 pr-4">
-              <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight line-clamp-2">
-                {currentTrack.title}
-              </h1>
-              <h2 className="text-2xl text-white/60 font-medium tracking-wide">
-                {currentTrack.artist}
-              </h2>
-            </div>
-            <div className="mt-2 shrink-0">
-              <TrackActionMenu song={currentTrack} direction="down" />
-            </div>
+        <div className="w-full text-center space-y-2">
+          <motion.h1
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-4xl font-bold text-white"
+          >
+            {currentTrack.title}
+          </motion.h1>
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl text-zinc-400"
+          >
+            {currentTrack.artist}
+          </motion.p>
+        </div>
+
+        <div className="w-full space-y-2">
+          <input
+            type="range"
+            min="0"
+            max={duration}
+            value={progress}
+            onChange={onSeek}
+            className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer hover:[&::-webkit-slider-thumb]:scale-110 transition-transform"
+          />
+          <div className="flex justify-between text-sm text-zinc-400">
+            <span>{formatTime(progress)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
+        </div>
 
-          <div className="w-full space-y-2 group">
-            <div className="relative h-1.5 bg-white/10 rounded-full cursor-pointer overflow-hidden hover:h-2.5 transition-all duration-300">
-              <div
-                className="absolute left-0 top-0 bottom-0 bg-white rounded-full group-hover:bg-emerald-400 transition-colors"
-                style={{ width: `${(progress / (duration || 1)) * 100}%` }}
-              />
-              <input
-                type="range"
-                min="0"
-                max={duration || 100}
-                value={progress}
-                onChange={onSeek}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </div>
-            <div className="flex justify-between text-xs font-medium text-white/40 font-mono">
-              <span>{formatTime(progress)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
+        <div className="flex items-center justify-center space-x-6">
+          <button onClick={onToggleShuffle} className={`p-3 rounded-full transition-all ${isShuffled ? 'text-emerald-500 bg-emerald-500/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+            <Shuffle className="w-5 h-5" />
+          </button>
+          <button onClick={onPrev} className="p-3 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+            <SkipBack className="w-6 h-6" />
+          </button>
+          <button onClick={onTogglePlay} className="p-5 bg-white text-black rounded-full hover:scale-105 transition-transform shadow-lg">
+            {isPlaying ? <Pause className="w-8 h-8" fill="currentColor" /> : <Play className="w-8 h-8" fill="currentColor" />}
+          </button>
+          <button onClick={onNext} className="p-3 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+            <SkipForward className="w-6 h-6" />
+          </button>
+          <button onClick={onToggleRepeat} className={`p-3 rounded-full transition-all ${repeatMode !== 'off' ? 'text-emerald-500 bg-emerald-500/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+            <Repeat className="w-5 h-5" />
+          </button>
+        </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <button onClick={onToggleShuffle} className={`p-2 transition-all hover:scale-110 ${isShuffled ? 'text-emerald-400' : 'text-white/40 hover:text-white'}`}>
-              <Shuffle className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-6">
-              <button onClick={onPrev} className="p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 transition-all active:scale-95 hover:scale-105">
-                <SkipBack className="w-6 h-6 fill-white text-white" />
-              </button>
-              <button
-                onClick={onTogglePlay}
-                className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
-              >
-                {isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
-              </button>
-              <button onClick={onNext} className="p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 transition-all active:scale-95 hover:scale-105">
-                <SkipForward className="w-6 h-6 fill-white text-white" />
-              </button>
-            </div>
-
-            <button onClick={onToggleRepeat} className={`p-2 transition-all hover:scale-110 ${repeatMode !== 'off' ? 'text-emerald-400' : 'text-white/40 hover:text-white'}`}>
-              <Repeat className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3 bg-white/5 px-4 py-3 rounded-xl border border-white/5 w-fit mx-auto backdrop-blur-md">
-            <Volume2 className="w-4 h-4 text-white/50" />
-            <div className="relative w-24 h-1 bg-white/10 rounded-full overflow-hidden">
-              <div className="absolute left-0 top-0 bottom-0 bg-white" style={{ width: `${volume}%` }} />
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={onVolumeChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </div>
-          </div>
+        <div className="flex items-center space-x-3">
+          <button className="p-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+            {volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={volume}
+            onChange={onVolumeChange}
+            className="w-32 h-1 bg-zinc-800 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+          />
         </div>
       </div>
     </motion.div>
@@ -517,7 +484,6 @@ const DesktopFullScreenPlayer = ({
 // Main Provider Component
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-
   const [state, setState] = useState<PlayerState>({
     currentSong: null,
     isPlaying: false,
@@ -532,11 +498,11 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const [skipCount, setSkipCount] = useState(0);
   const [repeatCount, setRepeatCount] = useState(0);
-
   const playerRef = useRef<any>(null);
   const playerReady = useRef(false);
   const isFetchingQueue = useRef(false);
   const recommendationEngine = useRef(new MusicRecommendationEngine());
+  const nextSongRef = useRef<() => void>();
 
   const getVideoId = (song: Song) => song.youtube_id || song.id.replace('yt_', '');
 
@@ -551,6 +517,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   // Initial Fetch
   useEffect(() => {
     if (!user) return;
+
     const fetchLastState = async () => {
       try {
         const lastState = await getNowPlaying(user.id);
@@ -567,6 +534,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to fetch last state", error);
       }
     };
+
     fetchLastState();
   }, [user]);
 
@@ -574,7 +542,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!state.isPlaying && state.currentSong && state.currentTime > 0) {
       const completionRatio = state.currentTime / (state.duration || 1);
-
       if (completionRatio > 0.9) {
         recommendationEngine.current.recordListeningEvent({
           songId: state.currentSong.id,
@@ -602,9 +569,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         isFetchingQueue.current = true;
         try {
           console.log("🎵 Intelligent Auto-Queue: Analyzing listening patterns...");
-
           const recentHistory = queue.slice(-10);
-
           const sessionContext: SessionContext = {
             currentSong,
             queue,
@@ -625,7 +590,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
               : `${currentSong.artist} radio`;
 
           let candidates = await searchMusic(searchQuery);
-
           candidates = candidates.filter(c =>
             !queue.some(q => q.id === c.id) &&
             c.id !== currentSong.id &&
@@ -652,7 +616,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
               queue: [...prev.queue, ...fallback]
             }));
           }
-
         } catch (error) {
           console.error("Auto-Queue Error:", error);
         } finally {
@@ -665,25 +628,20 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   }, [state.currentSong, state.queue, skipCount, repeatCount]);
 
   // --- MOBILE BACKGROUND PLAYBACK HACK ---
-  // A silent audio track is played alongside the YouTube video.
-  // This "tricks" iOS/Android into thinking a real music track is playing,
-  // preventing them from suspending the YouTube IFrame when backgrounded.
   const silentAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // 1-second silent MP3
     const SILENT_MP3 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAASAAAAAA//OEMAAAAAAA';
 
     if (!silentAudioRef.current) {
       const audio = new Audio(SILENT_MP3);
       audio.loop = true;
-      audio.volume = 0; // Silent
+      audio.volume = 0;
       audio.preload = 'auto';
       silentAudioRef.current = audio;
     }
   }, []);
 
-  // Sync Silent Audio with Player State
   useEffect(() => {
     const audio = silentAudioRef.current;
     if (!audio) return;
@@ -692,8 +650,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise.catch(error => {
-          // Auto-play policy might block this until user interaction.
-          // Usually handled by the main play button click, but good to catch.
           console.warn("Silent audio play blocked:", error);
         });
       }
@@ -702,18 +658,105 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [state.isPlaying]);
 
+  // Next song function
+  const nextSong = useCallback(() => {
+    const { currentSong, currentTime, duration, queue, isShuffled, repeatMode } = state;
+
+    // Record skip if applicable
+    if (currentSong && currentTime < duration * 0.7) {
+      recommendationEngine.current.recordListeningEvent({
+        songId: currentSong.id,
+        artist: currentSong.artist,
+        genre: (currentSong as any).genre,
+        action: 'skip',
+        timestamp: Date.now(),
+        listenDuration: currentTime,
+        songDuration: duration,
+      });
+      setSkipCount(prev => prev + 1);
+    }
+
+    // Handle repeat one
+    if (repeatMode === 'one' && currentSong) {
+      const videoId = getVideoId(currentSong);
+      if (playerRef.current && playerReady.current) {
+        playerRef.current.loadVideoById(videoId);
+      }
+      setState(prev => ({
+        ...prev,
+        progress: 0,
+        currentTime: 0,
+        isPlaying: true
+      }));
+      return;
+    }
+
+    // Find next track
+    if (queue.length === 0 || !currentSong) {
+      setState(prev => ({ ...prev, isPlaying: false }));
+      return;
+    }
+
+    const currentIndex = queue.findIndex(s => s.id === currentSong.id);
+    let nextIndex;
+
+    if (isShuffled) {
+      do {
+        nextIndex = Math.floor(Math.random() * queue.length);
+      } while (queue.length > 1 && nextIndex === currentIndex);
+    } else {
+      nextIndex = currentIndex + 1;
+      if (nextIndex >= queue.length) {
+        if (repeatMode === 'off') {
+          setState(prev => ({ ...prev, isPlaying: false }));
+          return;
+        }
+        nextIndex = 0;
+      }
+    }
+
+    const nextTrack = queue[nextIndex];
+    if (!nextTrack) {
+      setState(prev => ({ ...prev, isPlaying: false }));
+      return;
+    }
+
+    const videoId = getVideoId(nextTrack);
+    if (playerRef.current && playerReady.current) {
+      playerRef.current.loadVideoById(videoId);
+    }
+
+    if (user) {
+      addToHistory(user.id, nextTrack);
+      updateNowPlaying(user.id, nextTrack, true, 0);
+    }
+
+    setState(prev => ({
+      ...prev,
+      currentSong: nextTrack,
+      progress: 0,
+      currentTime: 0,
+      isPlaying: true
+    }));
+  }, [state, user]);
+
+  // Store nextSong in ref for YouTube API callback
+  useEffect(() => {
+    nextSongRef.current = nextSong;
+  }, [nextSong]);
+
   // YouTube API
   useEffect(() => {
     if (!document.getElementById('youtube-player-hidden')) {
       const playerDiv = document.createElement('div');
       playerDiv.id = 'youtube-player-hidden';
-      // Use opacity 0 instead of visibility: hidden to potentially avoid some background execution restrictions
       playerDiv.style.cssText = 'position: absolute; top: -9999px; left: -9999px; opacity: 0; pointer-events: none; z-index: -1;';
       document.body.appendChild(playerDiv);
     }
 
     const initPlayer = () => {
       if (playerRef.current) return;
+
       playerRef.current = new window.YT.Player('youtube-player-hidden', {
         height: '0',
         width: '0',
@@ -730,18 +773,31 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
           onReady: (event: any) => {
             playerReady.current = true;
             event.target.setVolume(state.volume);
+            console.log("✅ YouTube Player Ready");
           },
           onStateChange: (event: any) => {
+            console.log("🎵 Player State Changed:", event.data);
+            
             if (event.data === window.YT.PlayerState.PLAYING) {
               setState(prev => ({ ...prev, isPlaying: true }));
             } else if (event.data === window.YT.PlayerState.PAUSED) {
               setState(prev => ({ ...prev, isPlaying: false }));
             } else if (event.data === window.YT.PlayerState.ENDED) {
+              console.log("🎵 Song ended - Auto-playing next...");
               setState(prev => ({ ...prev, isPlaying: false }));
-              nextSong();
+              // Use the ref to get the latest version of nextSong
+              if (nextSongRef.current) {
+                nextSongRef.current();
+              }
             }
           },
-          onError: (e: any) => console.error("YT Error:", e)
+          onError: (e: any) => {
+            console.error("❌ YT Error:", e);
+            // Skip to next song on error
+            if (nextSongRef.current) {
+              nextSongRef.current();
+            }
+          }
         }
       });
     };
@@ -788,6 +844,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
       addToHistory(user.id, song);
       updateNowPlaying(user.id, song, true, 0);
     }
+
     setState(prev => {
       const queueHasSong = prev.queue.some(s => s.id === song.id);
       return {
@@ -799,18 +856,22 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         queue: queueHasSong ? prev.queue : [...prev.queue, song]
       };
     });
+
     setRepeatCount(prev => prev + 1);
   }, [user, state.currentSong]);
 
   const playTrackList = useCallback((tracks: Song[], startIndex: number = 0) => {
     const song = tracks[startIndex];
     if (!song) return;
+
     const videoId = getVideoId(song);
     if (playerRef.current && playerReady.current) playerRef.current.loadVideoById(videoId);
+
     if (user) {
       addToHistory(user.id, song);
       updateNowPlaying(user.id, song, true, 0);
     }
+
     setState(prev => ({
       ...prev,
       currentSong: song,
@@ -838,79 +899,30 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [state.isPlaying, pauseSong]);
 
-  const getNextTrack = (direction: 'next' | 'prev') => {
-    const { queue, currentSong, isShuffled, repeatMode } = state;
-    if (queue.length === 0 || !currentSong) return null;
-    const currentIndex = queue.findIndex(s => s.id === currentSong.id);
-    if (currentIndex === -1) return queue[0];
-
-    let nextIndex;
-    if (isShuffled) {
-      do { nextIndex = Math.floor(Math.random() * queue.length); } while (queue.length > 1 && nextIndex === currentIndex);
-    } else {
-      if (direction === 'next') {
-        nextIndex = currentIndex + 1;
-        if (nextIndex >= queue.length) {
-          if (repeatMode === 'off') return null;
-          nextIndex = 0;
-        }
-      } else {
-        nextIndex = currentIndex - 1;
-        if (nextIndex < 0) nextIndex = queue.length - 1;
-      }
-    }
-    return queue[nextIndex];
-  };
-
-  const nextSong = useCallback(() => {
-    const { currentSong, currentTime, duration } = state;
-
-    if (currentSong && currentTime < duration * 0.7) {
-      recommendationEngine.current.recordListeningEvent({
-        songId: currentSong.id,
-        artist: currentSong.artist,
-        genre: (currentSong as any).genre,
-        action: 'skip',
-        timestamp: Date.now(),
-        listenDuration: currentTime,
-        songDuration: duration,
-      });
-      setSkipCount(prev => prev + 1);
-    }
-
-    const nextTrack = getNextTrack('next');
-    if (!nextTrack) {
-      setState(prev => ({ ...prev, isPlaying: false }));
-      return;
-    }
-    const videoId = getVideoId(nextTrack);
-    if (playerRef.current && playerReady.current) playerRef.current.loadVideoById(videoId);
-    if (user) {
-      addToHistory(user.id, nextTrack);
-      updateNowPlaying(user.id, nextTrack, true, 0);
-    }
-    setState(prev => ({
-      ...prev,
-      currentSong: nextTrack,
-      progress: 0,
-      currentTime: 0,
-      isPlaying: true
-    }));
-  }, [state, user]);
-
   const prevSong = useCallback(() => {
     if (state.currentTime > 3) {
       seekTo(0);
       return;
     }
-    const prevTrack = getNextTrack('prev');
+
+    const { queue, currentSong } = state;
+    if (queue.length === 0 || !currentSong) return;
+
+    const currentIndex = queue.findIndex(s => s.id === currentSong.id);
+    let prevIndex = currentIndex - 1;
+    if (prevIndex < 0) prevIndex = queue.length - 1;
+
+    const prevTrack = queue[prevIndex];
     if (!prevTrack) return;
+
     const videoId = getVideoId(prevTrack);
     if (playerRef.current && playerReady.current) playerRef.current.loadVideoById(videoId);
+
     if (user) {
       addToHistory(user.id, prevTrack);
       updateNowPlaying(user.id, prevTrack, true, 0);
     }
+
     setState(prev => ({
       ...prev,
       currentSong: prevTrack,
@@ -928,6 +940,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         playerRef.current.seekTo(seekTime, true);
       }
     }
+
     setState(prev => {
       const newTime = (progress / 100) * (prev.duration || 0);
       if (user && prev.currentSong) updateNowPlaying(user.id, prev.currentSong, prev.isPlaying, newTime);
@@ -995,7 +1008,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     if ('mediaSession' in navigator && state.currentSong) {
       const { currentSong, isPlaying } = state;
 
-      // Update metadata
       navigator.mediaSession.metadata = new MediaMetadata({
         title: currentSong.title,
         artist: currentSong.artist,
@@ -1009,59 +1021,41 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         ]
       });
 
-      // Update playback state
       navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-
-      // Set action handlers
-      // We use the refs/wrappers to ensure we always use the latest state functions without re-binding too often,
-      // though the dependency on `state.currentSong` above will rebuild this when song changes anyway.
 
       navigator.mediaSession.setActionHandler('play', () => togglePlay());
       navigator.mediaSession.setActionHandler('pause', () => togglePlay());
       navigator.mediaSession.setActionHandler('previoustrack', () => prevSong());
       navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
-
       navigator.mediaSession.setActionHandler('seekto', (details) => {
-        if (details.seekTime && details.fastSeek) {
-          // Fast seek if supported, or just normal seek
-        }
         if (details.seekTime !== undefined) {
           const percent = (details.seekTime / (state.duration || 1)) * 100;
           seekTo(percent);
         }
       });
-
-      // Clean up isn't strictly necessary for metadata as it gets overwritten, 
-      // but good practice might be clearing handlers if component unmounts.
-      return () => {
-        // Optional: Clear handlers if needed, or let them linger until overwritten
-        // navigator.mediaSession.setActionHandler('play', null);
-      };
     }
   }, [state.currentSong, state.isPlaying, state.duration, togglePlay, prevSong, nextSong, seekTo]);
 
   return (
-    <PlayerContext.Provider
-      value={{
-        ...state,
-        playSong,
-        pauseSong,
-        togglePlay,
-        nextSong,
-        prevSong,
-        seekTo,
-        setVolume,
-        toggleShuffle,
-        toggleRepeat,
-        addToQueue,
-        clearQueue,
-        playTrackList,
-        exportUserProfile,
-        resetRecommendations,
-        skipCount,
-        repeatCount,
-      }}
-    >
+    <PlayerContext.Provider value={{
+      ...state,
+      playSong,
+      pauseSong,
+      togglePlay,
+      nextSong,
+      prevSong,
+      seekTo,
+      setVolume,
+      toggleShuffle,
+      toggleRepeat,
+      addToQueue,
+      clearQueue,
+      playTrackList,
+      exportUserProfile,
+      resetRecommendations,
+      skipCount,
+      repeatCount,
+    }}>
       {children}
     </PlayerContext.Provider>
   );
@@ -1104,45 +1098,47 @@ const Player: React.FC = () => {
   return (
     <>
       {/* Desktop Bar */}
-      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="hidden md:flex fixed bottom-6 left-6 right-6 h-20 bg-zinc-900/90 backdrop-blur-2xl border border-white/5 rounded-[2rem] px-8 items-center justify-between z-[100] shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:bg-zinc-900/95">
-        <div className="flex items-center w-[30%] space-x-4 group">
-          <div className="relative flex-shrink-0 cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setIsFullScreen(true)}>
-            <motion.img layoutId="desktop-cover" src={currentSong.coverUrl || currentSong.image} className="w-12 h-12 rounded-xl object-cover shadow-lg" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity flex items-center justify-center"><Maximize2 className="w-5 h-5 text-white" /></div>
+      <div className="hidden md:flex fixed bottom-0 left-0 right-0 h-20 bg-zinc-900/95 backdrop-blur-2xl border-t border-white/5 items-center px-4 z-50">
+        <div className="flex items-center space-x-3 w-1/4">
+          <img src={currentSong.coverUrl || currentSong.image} alt={currentSong.title} className="w-14 h-14 rounded-lg object-cover ring-1 ring-white/10" onClick={() => setIsFullScreen(true)} />
+          <div className="flex-1 min-w-0">
+            <div onClick={() => setIsFullScreen(true)} className="text-sm font-bold truncate text-white cursor-pointer hover:underline decoration-emerald-500 decoration-2 underline-offset-4">{currentSong.title}</div>
+            <div className="text-xs text-zinc-400 truncate">{currentSong.artist}</div>
           </div>
-          <div className="overflow-hidden">
-            <h4 onClick={() => setIsFullScreen(true)} className="text-sm font-bold truncate text-white cursor-pointer hover:underline decoration-emerald-500 decoration-2 underline-offset-4">{currentSong.title}</h4>
-            <p className="text-xs text-zinc-400 truncate font-medium">{currentSong.artist}</p>
-          </div>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity"><TrackActionMenu song={currentSong} direction="up" align="left" /></div>
+          <TrackActionMenu song={currentSong} />
         </div>
-        <div className="flex flex-col items-center w-[40%] gap-1">
-          <div className="flex items-center space-x-6">
-            <button onClick={toggleShuffle} className={`text-xs ${isShuffled ? 'text-emerald-500' : 'text-zinc-600 hover:text-white'}`}><Shuffle className="w-4 h-4" /></button>
-            <button onClick={prevSong} className="text-zinc-400 hover:text-white transition-transform active:scale-95"><SkipBack className="w-5 h-5 fill-current" /></button>
-            <button onClick={togglePlay} className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black hover:scale-105 transition-transform shadow-lg">{isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}</button>
-            <button onClick={nextSong} className="text-zinc-400 hover:text-white transition-transform active:scale-95"><SkipForward className="w-5 h-5 fill-current" /></button>
-            <button onClick={toggleRepeat} className={`text-xs ${repeatMode !== 'off' ? 'text-emerald-500' : 'text-zinc-600 hover:text-white'}`}><Repeat className="w-4 h-4" /></button>
+
+        <div className="flex flex-col items-center w-2/4 space-y-2">
+          <div className="flex items-center space-x-4">
+            <button onClick={toggleShuffle} className={`p-2 rounded-full transition-all ${isShuffled ? 'text-emerald-500 bg-emerald-500/10' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}><Shuffle className="w-4 h-4" /></button>
+            <button onClick={prevSong} className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"><SkipBack className="w-5 h-5" /></button>
+            <button onClick={togglePlay} className="p-3 bg-white text-black rounded-full hover:scale-105 transition-transform shadow-lg">{isPlaying ? <Pause className="w-5 h-5" fill="currentColor" /> : <Play className="w-5 h-5" fill="currentColor" />}</button>
+            <button onClick={nextSong} className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"><SkipForward className="w-5 h-5" /></button>
+            <button onClick={toggleRepeat} className={`p-2 rounded-full transition-all ${repeatMode !== 'off' ? 'text-emerald-500 bg-emerald-500/10' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}><Repeat className="w-4 h-4" /></button>
           </div>
-          <div className="w-full flex items-center space-x-3 group">
-            <span className="text-[10px] font-mono text-zinc-500 w-8 text-right group-hover:text-zinc-300">{formatTime(currentTime)}</span>
-            <div className="relative flex-1 h-1 bg-zinc-800 rounded-full group cursor-pointer overflow-hidden"><div className="absolute left-0 top-0 bottom-0 bg-white rounded-full group-hover:bg-emerald-500 transition-colors" style={{ width: `${progress}%` }} /><input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} className="absolute inset-0 opacity-0 cursor-pointer" /></div>
-            <span className="text-[10px] font-mono text-zinc-500 w-8 group-hover:text-zinc-300">{formatTime(duration)}</span>
+          <div className="flex items-center space-x-2 w-full">
+            <span className="text-xs text-zinc-400 w-10 text-right">{formatTime(currentTime)}</span>
+            <input type="range" min="0" max={duration} value={currentTime} onChange={handleSeek} className="flex-1 h-1 bg-zinc-800 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer hover:[&::-webkit-slider-thumb]:scale-110 transition-transform" />
+            <span className="text-xs text-zinc-400 w-10">{formatTime(duration)}</span>
           </div>
         </div>
-        <div className="flex items-center w-[30%] justify-end space-x-3">
-          <button onClick={toggleMute} className="text-zinc-500 hover:text-white">{volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}</button>
-          <div className="relative w-24 h-1 bg-zinc-700 rounded-full overflow-hidden group"><div className="absolute left-0 top-0 bottom-0 bg-white group-hover:bg-emerald-500 transition-colors" style={{ width: `${volume}%` }} /><input type="range" min="0" max="100" value={volume} onChange={(e) => setVolume(Number(e.target.value))} className="absolute inset-0 opacity-0 cursor-pointer" /></div>
-          <button onClick={() => setIsFullScreen(true)} className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"><Maximize2 className="w-4 h-4" /></button>
+
+        <div className="flex items-center justify-end space-x-3 w-1/4">
+          <button onClick={toggleMute} className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors">{volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}</button>
+          <div className="relative w-24 h-1 bg-zinc-800 rounded-full group">
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" style={{ width: `${volume}%` }} />
+            <input type="range" min="0" max="100" value={volume} onChange={(e) => setVolume(Number(e.target.value))} className="absolute inset-0 opacity-0 cursor-pointer" />
+          </div>
+          <button onClick={() => setIsFullScreen(true)} className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"><Maximize2 className="w-5 h-5" /></button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Desktop Fullscreen Overlay */}
       <AnimatePresence>
         {isFullScreen && (
           <DesktopFullScreenPlayer
-            currentTrack={currentSong} isPlaying={isPlaying} progress={currentTime} duration={duration} volume={volume}
-            isShuffled={isShuffled} repeatMode={repeatMode} onClose={() => setIsFullScreen(false)}
+            currentTrack={currentSong} isPlaying={isPlaying} progress={currentTime} duration={duration} volume={volume} isShuffled={isShuffled} repeatMode={repeatMode}
+            onClose={() => setIsFullScreen(false)}
             onTogglePlay={togglePlay} onNext={nextSong} onPrev={prevSong} onSeek={handleSeek}
             onVolumeChange={(e: any) => setVolume(Number(e.target.value))} onToggleShuffle={toggleShuffle} onToggleRepeat={toggleRepeat}
           />
@@ -1152,11 +1148,19 @@ const Player: React.FC = () => {
       {/* Mobile Mini */}
       <AnimatePresence>
         {!isMobileExpanded && (
-          <motion.div initial={{ y: 150 }} animate={{ y: -64 }} exit={{ y: 150 }} onClick={() => setIsMobileExpanded(true)} className="md:hidden fixed bottom-0 left-2 right-2 h-14 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-xl flex items-center px-3 space-x-3 z-[90] shadow-2xl">
-            <img src={currentSong.coverUrl || currentSong.image} className="w-10 h-10 rounded-lg shadow-md object-cover" />
-            <div className="flex-1 min-w-0"><h4 className="text-sm font-bold truncate text-white">{currentSong.title}</h4><p className="text-xs text-zinc-400 truncate">{currentSong.artist}</p></div>
-            <div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); togglePlay() }} className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-black">{isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}</button></div>
-            <div className="absolute bottom-0 left-3 right-3 h-[2px] bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{ width: `${progress}%` }} /></div>
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            onClick={() => setIsMobileExpanded(true)}
+            className="md:hidden fixed bottom-0 left-2 right-2 h-14 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-xl flex items-center px-3 space-x-3 z-[90] shadow-2xl"
+          >
+            <img src={currentSong.coverUrl || currentSong.image} alt={currentSong.title} className="w-10 h-10 rounded-lg object-cover ring-1 ring-white/10" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold truncate text-white">{currentSong.title}</div>
+              <div className="text-xs text-zinc-400 truncate">{currentSong.artist}</div>
+            </div>
+            <button onClick={(e) => { e.stopPropagation(); togglePlay() }} className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-black">{isPlaying ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4" fill="currentColor" />}</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1164,15 +1168,40 @@ const Player: React.FC = () => {
       {/* Mobile Fullscreen */}
       <AnimatePresence>
         {isMobileExpanded && (
-          <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="md:hidden fixed inset-0 z-[200] flex flex-col bg-zinc-950">
-            <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10"><img src={currentSong.coverUrl || currentSong.image} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-[80px]" /><div className="absolute inset-0 bg-black/50" /></div>
-            <div className="flex items-center justify-between p-6 pt-12"><button onClick={() => setIsMobileExpanded(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10"><ChevronDown className="w-5 h-5 text-white" /></button><span className="text-[10px] uppercase tracking-widest text-white/60 font-bold">Now Playing</span><TrackActionMenu song={currentSong} direction="down" /></div>
-            <div className="flex-1 flex items-center justify-center p-6"><motion.div layoutId="track-image" className="w-full max-w-[300px] aspect-square shadow-2xl rounded-2xl overflow-hidden border border-white/10"><img src={currentSong.coverUrl || currentSong.image} className="w-full h-full object-cover" /></motion.div></div>
-            <div className="px-8 pb-12 space-y-6">
-              <div className="flex justify-between items-start"><div className="space-y-1 overflow-hidden pr-4"><h2 className="text-2xl font-bold text-white truncate leading-tight">{currentSong.title}</h2><p className="text-base text-white/60 font-medium truncate">{currentSong.artist}</p></div><button className="text-zinc-400 hover:text-emerald-500 mt-1"><Heart className="w-6 h-6" /></button></div>
-              <div className="space-y-2"><div className="relative h-1 bg-white/10 rounded-full"><div className="absolute left-0 top-0 bottom-0 bg-white rounded-full" style={{ width: `${progress}%` }} /><input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} className="absolute inset-0 opacity-0 z-10" /></div><div className="flex justify-between text-xs font-medium text-white/40 font-mono"><span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span></div></div>
-              <div className="flex items-center justify-between px-2"><button onClick={toggleShuffle} className={`${isShuffled ? 'text-emerald-400' : 'text-zinc-500'}`}><Shuffle className="w-5 h-5" /></button><div className="flex items-center gap-6"><button onClick={prevSong}><SkipBack className="w-8 h-8 fill-white text-white" /></button><button onClick={togglePlay} className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-black shadow-xl active:scale-95 transition-transform">{isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}</button><button onClick={nextSong}><SkipForward className="w-8 h-8 fill-white text-white" /></button></div><button onClick={toggleRepeat} className={`${repeatMode !== 'off' ? 'text-emerald-400' : 'text-zinc-500'}`}><Repeat className="w-5 h-5" /></button></div>
-              <div className="flex justify-center items-center px-4 pt-2"><div className="flex items-center gap-2 text-zinc-500 text-xs font-bold uppercase tracking-wider"><Volume2 className="w-4 h-4" /><span>{volume}%</span></div></div>
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="md:hidden fixed inset-0 bg-gradient-to-b from-zinc-900 via-black to-black z-[100] flex flex-col p-6"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <button onClick={() => setIsMobileExpanded(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10"><ChevronDown className="w-5 h-5" /></button>
+              <div className="text-sm font-semibold">Now Playing</div>
+              <div className="w-8" />
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center space-y-8">
+              <img src={currentSong.coverUrl || currentSong.image} alt={currentSong.title} className="w-72 h-72 rounded-2xl shadow-2xl object-cover ring-1 ring-white/10" />
+              <div className="text-center space-y-2">
+                <div className="text-2xl font-bold text-white">{currentSong.title}</div>
+                <div className="text-lg text-zinc-400">{currentSong.artist}</div>
+              </div>
+              <div className="w-full space-y-2">
+                <input type="range" min="0" max={duration} value={currentTime} onChange={handleSeek} className="w-full h-1 bg-zinc-800 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full" />
+                <div className="flex justify-between text-xs text-zinc-400"><span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span></div>
+              </div>
+              <div className="flex items-center justify-center space-x-6">
+                <button onClick={toggleShuffle} className={isShuffled ? 'text-emerald-500' : 'text-zinc-400'}><Shuffle className="w-6 h-6" /></button>
+                <button onClick={prevSong}><SkipBack className="w-7 h-7" /></button>
+                <button onClick={togglePlay} className="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center">{isPlaying ? <Pause className="w-7 h-7" fill="currentColor" /> : <Play className="w-7 h-7" fill="currentColor" />}</button>
+                <button onClick={nextSong}><SkipForward className="w-7 h-7" /></button>
+                <button onClick={toggleRepeat} className={repeatMode !== 'off' ? 'text-emerald-500' : 'text-zinc-400'}><Repeat className="w-6 h-6" /></button>
+              </div>
+              <div className="flex items-center space-x-3">
+                <button onClick={toggleMute}>{volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}</button>
+                <div className="text-sm text-zinc-400">{volume}%</div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -1200,10 +1229,10 @@ const StatCard: React.FC<{ label: string; value: number; icon: string }> = ({
   value,
   icon,
 }) => (
-  <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 hover:bg-zinc-800 transition-colors">
-    <div className="text-3xl mb-2">{icon}</div>
-    <div className="text-2xl font-bold text-white mb-1">{value}</div>
-    <div className="text-xs text-zinc-400 uppercase tracking-wider">{label}</div>
+  <div className="bg-zinc-800/50 rounded-xl p-4 border border-white/5">
+    <div className="text-2xl mb-1">{icon}</div>
+    <div className="text-2xl font-bold text-white">{value}</div>
+    <div className="text-sm text-zinc-400">{label}</div>
   </div>
 );
 
@@ -1227,9 +1256,9 @@ export const TasteProfileDashboard: React.FC = () => {
   if (!profileData) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <Music className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-          <p className="text-zinc-400">Loading your taste profile...</p>
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="text-zinc-400">Loading your taste profile...</div>
         </div>
       </div>
     );
@@ -1246,206 +1275,191 @@ export const TasteProfileDashboard: React.FC = () => {
   const discoveryLevel = profileData.profile.discoveryOpenness * 100;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <Brain className="w-8 h-8 text-emerald-500" />
+            <h1 className="text-3xl font-bold text-white">Your Music DNA</h1>
+          </div>
+          <p className="text-zinc-400">
+            AI-powered insights into your listening patterns
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            if (confirm('Reset your taste profile? This cannot be undone.')) {
+              resetRecommendations();
+              loadProfile();
+            }
+          }}
+          className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm flex items-center gap-2 transition-colors"
+        >
+          <Settings className="w-4 h-4" />
+          Reset Profile
+        </button>
+      </div>
+
+      <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 rounded-2xl p-6 border border-emerald-500/20">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              Your Music DNA
-            </h1>
-            <p className="text-zinc-400">
-              AI-powered insights into your listening patterns
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="w-5 h-5 text-emerald-500" />
+              <h3 className="text-lg font-semibold text-white">Discovery Mode</h3>
+            </div>
+            <p className="text-sm text-zinc-400">
+              How open you are to new music
             </p>
           </div>
-          <button
-            onClick={() => {
-              if (confirm('Reset your taste profile? This cannot be undone.')) {
-                resetRecommendations();
-                loadProfile();
-              }
-            }}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm flex items-center gap-2 transition-colors"
-          >
-            <Settings className="w-4 h-4" />
-            Reset Profile
-          </button>
-        </div>
-
-        <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 rounded-2xl p-8">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Brain className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-xl font-bold">Discovery Mode</h2>
-              </div>
-              <p className="text-zinc-400 text-sm">
-                How open you are to new music
-              </p>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-emerald-500">
+              {discoveryLevel.toFixed(0)}%
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold text-emerald-400">
-                {discoveryLevel.toFixed(0)}%
-              </div>
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mt-1">
-                {discoveryLevel < 25 ? 'Conservative' :
-                  discoveryLevel < 40 ? 'Balanced' :
-                    discoveryLevel < 60 ? 'Adventurous' : 'Explorer'}
-              </div>
+            <div className="text-sm text-zinc-400">
+              {discoveryLevel < 25 ? 'Conservative' :
+                discoveryLevel < 40 ? 'Balanced' :
+                  discoveryLevel < 60 ? 'Adventurous' : 'Explorer'}
             </div>
-          </div>
-
-          <div className="relative h-3 bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000"
-              style={{ width: `${discoveryLevel}%` }}
-            />
-          </div>
-
-          <div className="mt-4 text-sm text-zinc-400">
-            {discoveryLevel < 25 && "You prefer familiar favorites. We'll keep recommendations close to what you know."}
-            {discoveryLevel >= 25 && discoveryLevel < 40 && "You enjoy a healthy mix of old and new. Perfect balance!"}
-            {discoveryLevel >= 40 && discoveryLevel < 60 && "You're open to exploring new artists and genres. We'll introduce fresh sounds!"}
-            {discoveryLevel >= 60 && "You're a music explorer! We'll push boundaries with diverse recommendations."}
           </div>
         </div>
+        <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500" style={{ width: `${discoveryLevel}%` }} />
+        </div>
+        <p className="mt-4 text-sm text-zinc-300">
+          {discoveryLevel < 25 && "You prefer familiar favorites. We'll keep recommendations close to what you know."}
+          {discoveryLevel >= 25 && discoveryLevel < 40 && "You enjoy a healthy mix of old and new. Perfect balance!"}
+          {discoveryLevel >= 40 && discoveryLevel < 60 && "You're open to exploring new artists and genres. We'll introduce fresh sounds!"}
+          {discoveryLevel >= 60 && "You're a music explorer! We'll push boundaries with diverse recommendations."}
+        </p>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-emerald-400" />
-              <h2 className="text-xl font-bold">Top Artists</h2>
-            </div>
-
-            <div className="space-y-3">
-              {topArtists.map(([artist, score], index) => {
-                const maxScore = topArtists[0][1];
-                const percentage = (score / maxScore) * 100;
-
-                return (
-                  <div key={artist} className="group">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-3">
-                        <span className="text-emerald-400 font-bold text-lg w-6">
-                          {index + 1}
-                        </span>
-                        <span className="font-medium group-hover:text-emerald-400 transition-colors">
-                          {artist}
-                        </span>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-zinc-800/30 rounded-2xl p-6 border border-white/5">
+          <div className="flex items-center gap-2 mb-4">
+            <Music className="w-5 h-5 text-emerald-500" />
+            <h3 className="text-lg font-semibold text-white">Top Artists</h3>
+          </div>
+          <div className="space-y-3">
+            {topArtists.map(([artist, score], index) => {
+              const maxScore = topArtists[0][1];
+              const percentage = (score / maxScore) * 100;
+              return (
+                <div key={artist}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500">
+                        {index + 1}
                       </div>
-                      <span className="text-zinc-500 text-sm font-mono">
+                      <span className="text-sm font-medium text-white truncate">
+                        {artist}
+                      </span>
+                    </div>
+                    <span className="text-xs text-zinc-400">
+                      {score.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500" style={{ width: `${percentage}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-zinc-800/30 rounded-2xl p-6 border border-white/5">
+          <div className="flex items-center gap-2 mb-4">
+            <ListMusic className="w-5 h-5 text-emerald-500" />
+            <h3 className="text-lg font-semibold text-white">Favorite Genres</h3>
+          </div>
+          {topGenres.length > 0 ? (
+            <div className="space-y-3">
+              {topGenres.map(([genre, score], index) => {
+                const maxScore = topGenres[0][1];
+                const percentage = (score / maxScore) * 100;
+                return (
+                  <div key={genre}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-white capitalize">
+                        {genre}
+                      </span>
+                      <span className="text-xs text-zinc-400">
                         {score.toFixed(1)}
                       </span>
                     </div>
-                    <div className="relative h-2 bg-zinc-800 rounded-full overflow-hidden ml-9">
-                      <div
-                        className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
-                        style={{ width: `${percentage}%` }}
-                      />
+                    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500" style={{ width: `${percentage}%` }} />
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <BarChart3 className="w-5 h-5 text-cyan-400" />
-              <h2 className="text-xl font-bold">Favorite Genres</h2>
+          ) : (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-sm text-zinc-400 text-center">
+                Listen to more music to see your genre preferences!
+              </p>
             </div>
-
-            {topGenres.length > 0 ? (
-              <div className="space-y-4">
-                {topGenres.map(([genre, score], index) => {
-                  const maxScore = topGenres[0][1];
-                  const percentage = (score / maxScore) * 100;
-
-                  return (
-                    <div key={genre} className="group">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium group-hover:text-cyan-400 transition-colors">
-                          {genre}
-                        </span>
-                        <span className="text-zinc-500 text-sm font-mono">
-                          {score.toFixed(1)}
-                        </span>
-                      </div>
-                      <div className="relative h-2.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div
-                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-cyan-500 to-cyan-600 transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-zinc-500">
-                <Music className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Listen to more music to see your genre preferences!</p>
-              </div>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Shuffle className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-bold">Recent Activity</h2>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard
-              label="Songs Played"
-              value={profileData.history.length}
-              icon="🎵"
-            />
-            <StatCard
-              label="Skipped"
-              value={profileData.history.filter(e => e.action === 'skip').length}
-              icon="⏭️"
-            />
-            <StatCard
-              label="Replayed"
-              value={profileData.history.filter(e => e.action === 'replay').length}
-              icon="🔁"
-            />
-            <StatCard
-              label="Full Listens"
-              value={profileData.history.filter(e => e.action === 'full_listen').length}
-              icon="✅"
-            />
-          </div>
+      <div className="bg-zinc-800/30 rounded-2xl p-6 border border-white/5">
+        <div className="flex items-center gap-2 mb-4">
+          <BarChart3 className="w-5 h-5 text-emerald-500" />
+          <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
         </div>
+        <div className="grid grid-cols-3 gap-4">
+          <StatCard
+            label="Songs Skipped"
+            value={profileData.history.filter(e => e.action === 'skip').length}
+            icon="⏭️"
+          />
+          <StatCard
+            label="Songs Replayed"
+            value={profileData.history.filter(e => e.action === 'replay').length}
+            icon="🔁"
+          />
+          <StatCard
+            label="Full Listens"
+            value={profileData.history.filter(e => e.action === 'full_listen').length}
+            icon="✅"
+          />
+        </div>
+      </div>
 
-        <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold mb-4">How AI Learns Your Taste</h2>
-          <div className="grid md:grid-cols-3 gap-6 text-sm">
-            <div className="space-y-2">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400 text-lg font-bold mb-3">
-                1
-              </div>
-              <h3 className="font-bold text-white">Listen & Track</h3>
-              <p className="text-zinc-400">
+      <div className="bg-zinc-800/30 rounded-2xl p-6 border border-white/5">
+        <h3 className="text-lg font-semibold text-white mb-4">How AI Learns Your Taste</h3>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black font-bold">
+              1
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-1">Listen & Track</h4>
+              <p className="text-sm text-zinc-400">
                 We monitor which songs you play fully, skip, or replay to understand your preferences.
               </p>
             </div>
-            <div className="space-y-2">
-              <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center text-cyan-400 text-lg font-bold mb-3">
-                2
-              </div>
-              <h3 className="font-bold text-white">Build Profile</h3>
-              <p className="text-zinc-400">
+          </div>
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-black font-bold">
+              2
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-1">Build Profile</h4>
+              <p className="text-sm text-zinc-400">
                 Artists and genres you love get higher scores. Skipped content lowers their weight.
               </p>
             </div>
-            <div className="space-y-2">
-              <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 text-lg font-bold mb-3">
-                3
-              </div>
-              <h3 className="font-bold text-white">Smart Recommendations</h3>
-              <p className="text-zinc-400">
+          </div>
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-black font-bold">
+              3
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-1">Smart Recommendations</h4>
+              <p className="text-sm text-zinc-400">
                 We balance 70% familiar favorites with 30% new discoveries tailored to your evolving taste.
               </p>
             </div>

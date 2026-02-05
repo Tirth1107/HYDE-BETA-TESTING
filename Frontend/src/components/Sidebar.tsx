@@ -51,6 +51,7 @@ const Sidebar: React.FC = () => {
       <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => navigate('/')}>
 
         <h1 className="text-2xl font-black tracking-tighter italic">HYDE MUSIC</h1>
+        <h4 className="text-xs font-black tracking-tighter italic text-red-600">By Tirth</h4>
       </div>
 
       <nav className="space-y-6">

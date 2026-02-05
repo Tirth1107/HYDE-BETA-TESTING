@@ -70,16 +70,16 @@ const Home: React.FC = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+            {/* <div className="p-1.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                <Sparkles className="w-4 h-4 text-emerald-400" />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400/80">Premium Access</span>
+            </div> */}
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400/80">Music For Everyone</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white capitalize drop-shadow-xl">
             {greeting}
           </h1>
           <p className="text-zinc-400 text-sm md:text-lg font-medium mt-2">
-            Let's get back to the rhythm, <span className="text-white font-bold">{profile?.username || 'User'}</span>.
+            Let's get back to the rhythm, <span className="text-white font-bold capitalize text-red-600">{profile?.username || 'User'}</span>.
           </p>
         </motion.div>
       </header>
@@ -145,9 +145,9 @@ const Home: React.FC = () => {
             <History className="w-5 h-5 text-emerald-500" />
             <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">Recently Played</h2>
           </div>
-          <button className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider flex items-center transition-colors">
+          {/* <button className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider flex items-center transition-colors">
             View All <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
+          </button> */}
         </div>
 
         {/* Scroll Container */}
